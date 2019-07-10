@@ -46,7 +46,7 @@ export default class PillsyCap {
                         // Check if it is a device you are looking for based on advertisement data
                         // or other criteria.
                         console.log(`Device name : ${device.name}`);
-                        if (device.name === this.address) {
+                        if (device.id === this.address) {
 
                             this.manager.stopDeviceScan();
 
@@ -92,7 +92,7 @@ export default class PillsyCap {
 
             let log = new PillyLog(buffer);
             log.print();
-            
+
         })
 
 

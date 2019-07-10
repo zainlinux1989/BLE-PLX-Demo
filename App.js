@@ -30,7 +30,7 @@ export default class App extends Component {
 
     startScan = () => {
 
-        let cap = new PillsyCap('Pillsy');   // EB:D7:0A:27:64:63
+        let cap = new PillsyCap('EB:D7:0A:27:64:63');   // EB:D7:0A:27:64:63   Pillsy
         console.log('startScan - begin');
 
         const delay = t => new Promise(resolve => setTimeout(resolve, t));
@@ -39,13 +39,13 @@ export default class App extends Component {
             .then((device)=>{
                 if(device != null){
                     console.log(`Device ID : ${device.address}`);
-                    cap.keepAlive();
-                    // cap.beep();
-                    cap.blink();
-                    cap.readLogs();
+                    // cap.keepAlive();
+                    cap.beep();
+                    // cap.blink();
+                    // cap.readLogs();
                     // cap.readBattery();
                     // cap.readTime();
-                    // cap.drop();
+                    cap.drop();
                 }
                 else{
                     console.log('Device error')
