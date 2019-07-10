@@ -60,7 +60,7 @@ module.exports = class PillsyLog {
                 break;
             }
 
-            //this.data.state = state
+            this.data.state = state
             break;
 
         case '2': // State Change

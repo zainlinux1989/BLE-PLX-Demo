@@ -7,8 +7,8 @@ import {Buffer} from "buffer";
 
 
 export default class PillsyCap {
-    constructor(id) {
-        this.id = id;
+    constructor(address) {
+        this.address = address;
         this.manager = new BleManager();
         this.device = null;
         this.services = gatt.services;
@@ -46,7 +46,7 @@ export default class PillsyCap {
                         // Check if it is a device you are looking for based on advertisement data
                         // or other criteria.
                         console.log(`Device name : ${device.name}`);
-                        if (device.name === this.id) {
+                        if (device.name === this.address) {
 
                             this.manager.stopDeviceScan();
 
@@ -81,33 +81,22 @@ export default class PillsyCap {
 
     // LOG
     readLogs = () => {
-        /*
-            this.device.readCharacteristicForService(this.services.pillsy.uuid, this.services.pillsy.characteristics.log)
-            .then((data)=>{
-                console.log(`Data : ${data.value}`)
-            })
-            .catch((error)=>{
-                console.log(`Data error : ${error}`)
-            })
-        */
 
-        // Uint8Array(16)
+        this.device.monitorCharacteristicForService(this.services.pillsy.uuid, this.services.pillsy.characteristics.log,(error, characteristic) => {
+            if (error) {
+                console.log(error.message)
+                return
+            }
 
-        this.device.readCharacteristicForService(this.services.pillsy.uuid, this.services.pillsy.characteristics.log)
-            .then((data)=>{
+            var buffer = Buffer.from(characteristic.value, 'base64');
 
-                // const arrayBuffer = base64ToArrayBuffer(data.value);
-                // const viewData = new DataView(arrayBuffer);
-                // console.log(`Read Logs : ${log.value}`)
+            let log = new PillyLog(buffer);
+            log.print();
+            
+        })
 
-                var buffer = Buffer.from(data.value, 'base64');
-                // var buf = new Uint8Array(arrayBuffer);
 
-                let log = new PillyLog(buffer);
-            })
-            .catch((error)=>{
-                console.log((`Unable to read logs ${error}`))
-            })
+
 
     }
 

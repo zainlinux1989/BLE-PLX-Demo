@@ -38,7 +38,7 @@ export default class App extends Component {
         cap.connect()
             .then((device)=>{
                 if(device != null){
-                    console.log(`Device ID : ${device.id}`);
+                    console.log(`Device ID : ${device.address}`);
                     cap.keepAlive();
                     // cap.beep();
                     cap.blink();
@@ -121,7 +121,7 @@ export default class App extends Component {
                     })
                     .then((device) => {
                         // Do work on device with services and characteristics
-                        this.manager.servicesForDevice(device.id)
+                        this.manager.servicesForDevice(device.address)
                             .then((services) => {
                                 // console.log(service)
                                 services.map((service) => {
@@ -130,7 +130,7 @@ export default class App extends Component {
                                         .then((characteristics)=>{
                                             characteristics.map((char)=>{
                                                 //console.log(`Characteristic : ${char}`)
-                                                this.manager.readCharacteristicForDevice(device.id, service.uuid,char.uuid)
+                                                this.manager.readCharacteristicForDevice(device.address, service.uuid,char.uuid)
                                                     .then((data)=>{
                                                         console.log('*******************************************');
                                                         console.log(`-- Service ID : ${service.uuid}`);

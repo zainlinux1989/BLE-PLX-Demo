@@ -39,8 +39,8 @@
 		5D4D2E2B920C43C781B27BB0 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 705908DC0ACC4E2BBDD84C2C /* libRNFS.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
+		BF8F4FF922D615520096DF92 /* libBleClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BFE63D3522CE0F8E000318FD /* libBleClient.a */; };
 		BFE63D3822CE0F9B000318FD /* Demo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE63D3722CE0F9B000318FD /* Demo.swift */; };
-		BFE63D3922CE11CA000318FD /* libBleClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BFE63D3522CE0F8E000318FD /* libBleClient.a */; };
 		ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
 		ED2971652150620600B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2971642150620600B7C4FE /* JavaScriptCore.framework */; };
 		F4F6CF989DE34C7496D9E18F /* libRNBLE.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD0AF83124D2407E850FBDA4 /* libRNBLE.a */; };
@@ -402,7 +402,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFE63D3922CE11CA000318FD /* libBleClient.a in Frameworks */,
+				BF8F4FF922D615520096DF92 /* libBleClient.a in Frameworks */,
 				ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				11D1A2F320CAFA9E000508D9 /* libRCTAnimation.a in Frameworks */,
