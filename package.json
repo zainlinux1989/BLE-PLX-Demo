@@ -12,7 +12,8 @@
     "react": "16.8.3",
     "react-native": "0.59.8",
     "react-native-base64": "0.0.2",
-    "react-native-ble-plx": "^1.0.3"
+    "react-native-ble-plx": "^1.0.3",
+    "realm": "^2.29.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
