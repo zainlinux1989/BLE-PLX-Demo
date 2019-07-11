@@ -38,14 +38,15 @@ export default class App extends Component {
         cap.connect()
             .then((device)=>{
                 if(device != null){
-                    console.log(`Device ID : ${device.address}`);
-                    // cap.keepAlive();
-                    cap.beep();
+                    console.log(`Device ID : ${device.deviceID}`);
+                    cap.keepAlive();
+                    // cap.beep();
                     // cap.blink();
                     // cap.readLogs();
                     // cap.readBattery();
                     // cap.readTime();
-                    cap.drop();
+                    // cap.readDeviceInfo();
+                    // cap.drop();
                 }
                 else{
                     console.log('Device error')
@@ -97,73 +98,6 @@ export default class App extends Component {
             }
         });
          */
-    }
-
-
-
-
-    scanAndConnect() {
-        this.manager.startDeviceScan(null, null, (error, device) => {
-            if (error) {
-                // Handle error (scanning will be stopped automatically)
-                return
-            }
-
-            // Check if it is a device you are looking for based on advertisement data
-            // or other criteria.
-            console.log(`Device name : ${device.name}`);
-            if (device.name === 'Pillsy') {
-
-
-                device.connect()
-                    .then((device) => {
-                        return device.discoverAllServicesAndCharacteristics(device.id)
-                    })
-                    .then((device) => {
-                        // Do work on device with services and characteristics
-                        this.manager.servicesForDevice(device.address)
-                            .then((services) => {
-                                // console.log(service)
-                                services.map((service) => {
-                                    //0000fe09-0000-1000-8000-00805f9b34fb
-                                    service.characteristics()
-                                        .then((characteristics)=>{
-                                            characteristics.map((char)=>{
-                                                //console.log(`Characteristic : ${char}`)
-                                                this.manager.readCharacteristicForDevice(device.address, service.uuid,char.uuid)
-                                                    .then((data)=>{
-                                                        console.log('*******************************************');
-                                                        console.log(`-- Service ID : ${service.uuid}`);
-                                                        console.log(`-- Character ID : ${data.uuid}`);
-                                                        console.log(`-- Character data : ${atob(data.value)}`);
-                                                        console.log('*******************************************');
-                                                    })
-                                                    .catch((error)=>{
-                                                        console.log(`** Character error : ${error}`)
-                                                    })
-                                            })
-                                        })
-                                        .catch((error)=>{
-                                            console.log(`** Characteristics error : ${error}`)
-                                        })
-                                    console.log(`** Service UUID : ${service.uuid}`)
-                                })
-                            })
-                            .catch((error) => {
-                                console.log(`** Service error : ${error}`)
-                            })
-                    })
-                    .catch((error) => {
-                        // Handle errors
-                    });
-
-
-                // Stop scanning as it's not necessary if you are scanning for one device.
-                this.manager.stopDeviceScan();
-
-                // Proceed with connection.
-            }
-        });
     }
 
     render() {

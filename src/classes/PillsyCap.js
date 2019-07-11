@@ -4,11 +4,12 @@ import {BleManager} from "react-native-ble-plx";
 import {hexToBase64, base64ToArrayBuffer} from '../modules/StringExt';
 import PillyLog from './PillsyLog';
 import {Buffer} from "buffer";
+import Base64 from 'react-native-base64';
 
 
 export default class PillsyCap {
-    constructor(address) {
-        this.address = address;
+    constructor(deviceID) {
+        this.deviceID = deviceID.toLowerCase();
         this.manager = new BleManager();
         this.device = null;
         this.services = gatt.services;
@@ -46,7 +47,9 @@ export default class PillsyCap {
                         // Check if it is a device you are looking for based on advertisement data
                         // or other criteria.
                         console.log(`Device name : ${device.name}`);
-                        if (device.id === this.address) {
+                        let id = this.getDeviceID(device.manufacturerData);
+
+                        if (id === this.deviceID) {
 
                             this.manager.stopDeviceScan();
 
@@ -79,17 +82,32 @@ export default class PillsyCap {
         });
     };
 
+    // Get Device ID from Manufacturer data
+    getDeviceID = (data) =>{
+
+        var buffer = Buffer.from(data, 'base64');
+        // Type:        [Start] # bytes (total 12)
+        // Device Id:   [3-8]   6 bytes
+
+        let deviceID = buffer.subarray(3,9).toString('hex');
+
+        let arr = []
+        for(let i=0;i<deviceID.length;i=i+2){
+            arr.push(deviceID[i]+deviceID[i+1]);
+        }
+        // Return ID in xx:xx:xx:xx:xx:xx form
+        return arr.reverse().join(':').toLowerCase();
+    }
+
     // LOG
     readLogs = () => {
 
-        this.device.monitorCharacteristicForService(this.services.pillsy.uuid, this.services.pillsy.characteristics.log,(error, characteristic) => {
+        this.manager.monitorCharacteristicForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.log,(error, characteristic) => {
             if (error) {
                 console.log(error.message)
                 return
             }
-
             var buffer = Buffer.from(characteristic.value, 'base64');
-
             let log = new PillyLog(buffer);
             log.print();
 
@@ -145,13 +163,8 @@ export default class PillsyCap {
 
         let char = this.services.pillsy.time;
 
-        this.device.readCharacteristicForDevice(this.services.pillsy.uuid, this.services.pillsy.characteristics.time)
+        this.manager.readCharacteristicForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.time)
             .then((data)=>{
-
-                // const arrayBuffer = base64ToArrayBuffer(data.value);
-                // const view = new DataView(arrayBuffer);
-                // const value = view.getUint32(0, false);
-
                 let buffer = Buffer.from(data.value, 'base64');
                 const value = buffer.readUInt32BE();
 
@@ -163,15 +176,6 @@ export default class PillsyCap {
             .catch((error)=>{
                 console.log(`Time read error : ${error}`)
             })
-        /*
-        char.read();
-        char.once('data', function(data) {
-            let time = data.readUInt32BE();
-            let date = new Date(time * 1000);
-            let delta = (new Date() - date) / 1000;
-            console.log("Time: %d Date: %s, Delta: %d seconds", time, date, delta);
-        });
-         */
     }
 
     // ALERT
@@ -204,7 +208,7 @@ export default class PillsyCap {
         this.alert(0x8);
     }
 
-    // ALARM
+    // ALARM -- not changed
     setAlarm = (date, interval) => {
         console.log("Set alarm at %s which repeats every %d hours", date, interval);
 
@@ -219,16 +223,18 @@ export default class PillsyCap {
         char.write(data, false);
     }
 
+    //  -- not changed
     clearAlarms = () => {
-        console.log("Clearing all alarms on ", this.peripheral.address);
+        console.log("Clearing all alarms on ", this.peripheral.deviceID);
 
         let data = Buffer.alloc(4);
         let char = this.services.pillsy.alarm;
         char.write(data, false);
     }
 
+    //  -- not changed
     readAlarm = () => {
-        console.log("Read Alarm on ", this.peripheral.address);
+        console.log("Read Alarm on ", this.peripheral.deviceID);
 
         let char = this.services.pillsy.alarm
         char.read();
@@ -247,31 +253,34 @@ export default class PillsyCap {
         let data = hexToBase64(key.toString());
         this.manager.writeCharacteristicWithResponseForDevice(this.device.id, gatt.services.pillsy.uuid, gatt.services.pillsy.characteristics.admin, data)
             .then((result)=>{
-                console.log(result)
+                // console.log(`Admin Logs : `);
+                // console.log(result);
+                // console.log('--------------------')
             })
             .catch((error)=>{
                 console.log(error)
             })
-    }
+    };
 
     keepAlive = () => {
         this.setAdmin(gatt.adminKeys.keepAlive);
-    }
+    };
 
     drop = () => {
         this.setAdmin(gatt.adminKeys.disconnect);
-    }
+    };
 
     hibernate = () => {
         this.setAdmin(gatt.adminKeys.hibernate);
-    }
+    };
 
     forceCrash = () => {
         this.setAdmin(gatt.adminKeys.forceCrash);
-    }
+    };
 
+    //  -- not changed
     setVolume = (level) => {
-        console.log("Set volume on ", this.peripheral.address);
+        console.log("Set volume on ", this.peripheral.deviceID);
 
         var key = gatt.adminKeys.volume[level];
         if (key) {
@@ -279,10 +288,11 @@ export default class PillsyCap {
         } else {
             console.log("Invalid Volume!");
         }
-    }
+    };
 
+    //  -- not changed
     setPingInterval = (interval) => {
-        console.log("Set ping interval on ", this.peripheral.address);
+        console.log("Set ping interval on ", this.peripheral.deviceID);
 
         var num = parseInt(interval);
         var key = gatt.adminKeys.pingInterval[num];
@@ -293,16 +303,10 @@ export default class PillsyCap {
         }
     }
 
-    // BATTERY
-
+    // BATTERY:
     readBattery = () => {
-
-        this.device.readCharacteristicForService(this.services.battery.uuid, this.services.battery.characteristics.level)
+        this.manager.readCharacteristicForDevice(this.device.id, this.services.battery.uuid, this.services.battery.characteristics.level)
             .then((data)=>{
-                // const arrayBuffer = base64ToArrayBuffer(data.value);
-                // const view = new DataView(arrayBuffer);
-                // const value = view.getUint8(0);
-
                 let buffer = Buffer.from(data.value, 'base64');
                 const  value = buffer.readUInt8();
 
@@ -311,45 +315,41 @@ export default class PillsyCap {
             .catch((error)=>{
                 console.log(`Battery read error : ${error}`)
             })
+    };
 
-        /*
-        let char = this.services.battery.level
-        char.subscribe();
-        char.on('data', function(data) {
-            let pct = data.readUInt8();
-            console.log("Battery:", pct + "%");
-        });
-         */
-    }
 
     // INFO:
-
     readString = (char, callback) => {
-        char.read(function(err, data) {
-            callback(data.toString());
-        })
-    }
+        this.manager.readCharacteristicForDevice(this.device.id, this.services.deviceInfo.uuid, char)
+            .then((data)=>{
+                const  value = Base64.decode(data.value)
+                callback(value)
+            })
+            .catch((error)=>{
+                callback(`Read info error : ${error}`)
+            })
+    };
 
     readDeviceInfo = () => {
-        console.log("Read Info on ", this.peripheral.address);
+        console.log("Read Info on ");
 
-        let service = this.services.deviceInfo
-        this.readString(service.modelNumber, function(str) {
+        let service = this.services.deviceInfo.characteristics;
+        this.readString(service.modelNumber, (str) => {
             console.log("Model:", str);
         });
-        this.readString(service.firmwareRevision, function(str) {
+        this.readString(service.firmwareRevision, (str) => {
             console.log("Firmware Version:", str);
         });
-        this.readString(service.hardwareRevision, function(str) {
+        this.readString(service.hardwareRevision, (str) => {
             console.log("Hardware Revision:", str);
         });
-        this.readString(service.softwareRevision, function(str) {
+        this.readString(service.softwareRevision, (str) => {
             console.log("Build Hash:", str);
         });
-        this.readString(service.manufacturerName, function(str) {
+        this.readString(service.manufacturerName, (str) => {
             console.log("Manufacturer:", str);
         });
-    }
+    };
 
     disconnect() {
         this.cap.disconnect();
