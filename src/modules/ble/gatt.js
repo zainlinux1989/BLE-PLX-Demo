@@ -9,14 +9,14 @@ const pillsy = {
         time:   '00000003-8ff8-4d84-896a-8eaa1c28fe43', // write/read
         beep:   '00000004-8ff8-4d84-896a-8eaa1c28fe43'  // write/read
     }
-}
+};
 
 const battery = {
     uuid: '180f',
     characteristics: {
         level: '2a19'
     }
-}
+};
 
 const deviceInfo = {
     uuid: '180a',
@@ -27,7 +27,7 @@ const deviceInfo = {
         softwareRevision: '2a28',
         manufacturerName: '2a29'
     }
-}
+};
 
 const dfu = {
     uuid: '00001530-1212-efde-1523-785feabcd123',
@@ -36,14 +36,14 @@ const dfu = {
         packet       : '00001532-1212-efde-1523-785feabcd123',
         version      : '00001534-1212-efde-1523-785feabcd123'
     }
-}
+};
 
 const services = {
     pillsy: pillsy,
     battery: battery,
     deviceInfo: deviceInfo,
     dfu: dfu
-}
+};
 
 const adminKeys = {
     keepAlive:  0x53,
@@ -72,12 +72,20 @@ const adminKeys = {
         180: 0x79,
         240: 0x7A
     },
-}
+};
+
+const beepKeys = {
+    beep: 0x1,
+    blink: 0x2,
+    warn: 0x4,
+    chirp: 0x8,
+};
 
 
 module.exports = {
     services: services,
     main: [pillsy.uuid],
     all: [pillsy.uuid, battery.uuid, deviceInfo.uuid, dfu.uuid],
-    adminKeys: adminKeys
-}
+    adminKeys: adminKeys,
+    beepKeys: beepKeys
+};

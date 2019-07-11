@@ -13,6 +13,8 @@ export default class PillsyCap {
         this.manager = new BleManager();
         this.device = null;
         this.services = gatt.services;
+        this.beepKeys = gatt.beepKeys;
+        this.adminKeys = gatt.adminKeys;
 
         // Services UUID
         this.pillsyUUID = gatt.services.pillsy.uuid;
@@ -165,7 +167,6 @@ export default class PillsyCap {
                 let date = new Date(value * 1000);
                 let delta = (new Date() - date) / 1000;
                 console.log(`Date: ${date}, Delta: ${delta} seconds`);
-                console.log(`Time read success : ${value}`)
             })
             .catch((error)=>{
                 console.log(`Time read error : ${error}`)
@@ -190,19 +191,19 @@ export default class PillsyCap {
 
     // BEEP
     beep = () => {
-        this.alert(0x1);
+        this.alert(this.beepKeys.beep);
     }
 
     blink = () => {
-        this.alert(0x2);
+        this.alert(this.beepKeys.blink);
     }
 
     warn = () => {
-        this.alert(0x4);
+        this.alert(this.beepKeys.warn);
     }
 
     chirp = () => {
-        this.alert(0x8);
+        this.alert(this.beepKeys.chirp);
     }
 
     // ALARM -- not changed
@@ -253,9 +254,8 @@ export default class PillsyCap {
 
         this.manager.writeCharacteristicWithResponseForDevice(this.device.id, this.pillsyUUID, charUUID , data)
             .then((result)=>{
-                // console.log(`Admin Logs : `);
-                // console.log(result);
-                // console.log('--------------------')
+                console.log(result);
+
             })
             .catch((error)=>{
                 console.log(error)
@@ -263,26 +263,26 @@ export default class PillsyCap {
     };
 
     keepAlive = () => {
-        this.setAdmin(gatt.adminKeys.keepAlive);
+        this.setAdmin(this.adminKeys.keepAlive);
     };
 
     drop = () => {
-        this.setAdmin(gatt.adminKeys.disconnect);
+        this.setAdmin(this.adminKeys.disconnect);
     };
 
     hibernate = () => {
-        this.setAdmin(gatt.adminKeys.hibernate);
+        this.setAdmin(this.adminKeys.hibernate);
     };
 
     forceCrash = () => {
-        this.setAdmin(gatt.adminKeys.forceCrash);
+        this.setAdmin(this.adminKeys.forceCrash);
     };
 
     //  -- not changed
     setVolume = (level) => {
         console.log("Set volume on ", this.peripheral.address);
 
-        var key = gatt.adminKeys.volume[level];
+        var key = this.adminKeys.volume[level];
         if (key) {
             this.setAdmin(key);
         } else {
@@ -295,7 +295,7 @@ export default class PillsyCap {
         console.log("Set ping interval on ", this.peripheral.address);
 
         var num = parseInt(interval);
-        var key = gatt.adminKeys.pingInterval[num];
+        var key = this.adminKeys.pingInterval[num];
         if (key) {
             this.setAdmin(key);
         } else {
@@ -325,7 +325,7 @@ export default class PillsyCap {
     readString = (char, callback) => {
         this.manager.readCharacteristicForDevice(this.device.id, this.deviceInfoUUID, char)
             .then((data)=>{
-                const  value = Base64.decode(data.value)
+                const  value = Base64.decode(data.value);
                 callback(value)
             })
             .catch((error)=>{
@@ -355,6 +355,6 @@ export default class PillsyCap {
     };
 
     disconnect() {
-        this.cap.disconnect();
+        this.drop();
     }
 }
