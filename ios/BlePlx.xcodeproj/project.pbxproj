@@ -40,7 +40,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		A2DD0CC259FA4061B35FE345 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D0E9E2FFF2EB4CD790382044 /* libc++.tbd */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
-		B2528E5E39A347FD9A5D47E6 /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AE20B7FA0B5643BB86BD5EC2 /* libRealmReact.a */; };
+		BF23277622D73A61000545F2 /* libRealmReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BF23273D22D72BF6000545F2 /* libRealmReact.a */; };
 		BF8F4FF922D615520096DF92 /* libBleClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BFE63D3522CE0F8E000318FD /* libBleClient.a */; };
 		BFE63D3822CE0F9B000318FD /* Demo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE63D3722CE0F9B000318FD /* Demo.swift */; };
 		EB7596426CB2486F8F0632A6 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 13702B745BEA4A0386F64C74 /* libz.tbd */; };
@@ -416,6 +416,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF23277622D73A61000545F2 /* libRealmReact.a in Frameworks */,
 				BF8F4FF922D615520096DF92 /* libBleClient.a in Frameworks */,
 				ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
@@ -432,7 +433,6 @@
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				5D4D2E2B920C43C781B27BB0 /* libRNFS.a in Frameworks */,
 				F4F6CF989DE34C7496D9E18F /* libRNBLE.a in Frameworks */,
-				B2528E5E39A347FD9A5D47E6 /* libRealmReact.a in Frameworks */,
 				A2DD0CC259FA4061B35FE345 /* libc++.tbd in Frameworks */,
 				EB7596426CB2486F8F0632A6 /* libz.tbd in Frameworks */,
 			);

@@ -1,7 +1,7 @@
 import async from 'async';
 import gatt from '../modules/ble/gatt';
 import {BleManager} from "react-native-ble-plx";
-import {hexToBase64, base64ToArrayBuffer} from '../modules/StringExt';
+import {hexToBase64} from '../modules/StringExt';
 import PillyLog from './PillsyLog';
 import {Buffer} from "buffer";
 import Base64 from 'react-native-base64';

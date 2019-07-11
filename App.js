@@ -10,6 +10,7 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {BleManager} from 'react-native-ble-plx'
 import PillsyCap from './src/classes/PillsyCap';
+import CapDB from "./src/database/CapDB";
 
 export default class App extends Component {
     constructor() {
@@ -17,7 +18,33 @@ export default class App extends Component {
         this.manager = new BleManager();
     }
     componentWillMount() {
+
+        // Database work START
+        let object = new CapDB();
+
+        // Insert Object
+        //object.insert();        // pass parameters from here
+
+        // Read All objects, before
+        for (let o of object.read()) {
+            console.log(`${o.id}  ${o.deviceId} ${o.platform}`);
+        }
+
+        // Update object
+        object.update()
+
+        // Read All objects after update
+        for (let o of object.read()) {
+            console.log(`${o.id}  ${o.deviceId} ${o.platform}`);
+        }
+        // Database work END
+
+
+        // use Later
+        /*
         this.startScan();
+        */
+
         /*
       const subscription = this.manager.onStateChange((state) => {
         if (state === 'PoweredOn') {
