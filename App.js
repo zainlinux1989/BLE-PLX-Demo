@@ -29,8 +29,8 @@ export default class App extends Component {
     }
 
     startScan = () => {
-
-        let cap = new PillsyCap('EB:D7:0A:27:64:63');   // EB:D7:0A:27:64:63   Pillsy
+        let address = 'EB:D7:0A:27:64:63';   // EB:D7:0A:27:64:63   address of current device
+        let cap = new PillsyCap(address);
         console.log('startScan - begin');
 
         const delay = t => new Promise(resolve => setTimeout(resolve, t));
@@ -38,15 +38,15 @@ export default class App extends Component {
         cap.connect()
             .then((device)=>{
                 if(device != null){
-                    console.log(`Device ID : ${device.deviceID}`);
+                    console.log(`Connected Device Address(ID) : ${address}`);
                     cap.keepAlive();
                     // cap.beep();
                     // cap.blink();
-                    // cap.readLogs();
-                    // cap.readBattery();
+                    cap.readLogs();
+                    cap.readBattery();
                     // cap.readTime();
-                    // cap.readDeviceInfo();
-                    // cap.drop();
+                    cap.readDeviceInfo();
+                    cap.drop();
                 }
                 else{
                     console.log('Device error')
@@ -55,49 +55,6 @@ export default class App extends Component {
             .catch((error)=>{
                 console.log(`Device error : ${error}`)
             })
-
-
-        /*
-        scan.find(async (err, cap) => {
-            if (err){
-                console.error('Error processing pillsycap: ', err);
-
-                throw err;
-            }
-            else{
-                if (!cap){
-                    console.warn('Did not find any pillsy caps....');
-
-                    return;
-                }
-                else{
-                    console.log('successfully processed pillsycap, now keep alive and set time..');
-
-                    cap.keepAlive();
-                    cap.readTime();
-                    cap.readAlarm();
-
-                    cap.readLogs(log => {
-                        log.print();
-                    });
-
-                    await delay(1000);
-                    cap.setTime();
-                    await delay(1000);
-                    cap.beep();
-                    await delay(1000);
-                    cap.clearAlarms();
-                    await delay(1000);
-                    cap.setPingInterval(15);
-                    await delay(1000);
-                    cap.drop();
-
-                    console.log(chalk.yellow("finished processing this cap, exit..."));
-                    process.exit(1);
-                }
-            }
-        });
-         */
     }
 
     render() {

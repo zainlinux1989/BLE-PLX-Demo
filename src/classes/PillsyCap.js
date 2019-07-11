@@ -8,25 +8,18 @@ import Base64 from 'react-native-base64';
 
 
 export default class PillsyCap {
-    constructor(deviceID) {
-        this.deviceID = deviceID.toLowerCase();
+    constructor(address) {
+        this.address = address.toLowerCase();
         this.manager = new BleManager();
         this.device = null;
         this.services = gatt.services;
-        //     {
-        //     pillsy: {
-        //         uuid: gatt.services.pillsy.uuid
-        //     },
-        //     battery: {
-        //         uuid: gatt.services.battery.uuid
-        //     },
-        //     deviceInfo: {
-        //         uuid: gatt.services.deviceInfo.uuid
-        //     },
-        //     dfu: {
-        //         uuid: gatt.services.dfu.uuid
-        //     }
-        // }
+
+        // Services UUID
+        this.pillsyUUID = gatt.services.pillsy.uuid;
+        this.batteryUUID = gatt.services.battery.uuid;
+        this.deviceInfoUUID = gatt.services.deviceInfo.uuid;
+        this.dfuUUID = gatt.services.dfu.uuid;
+
     }
 
     componentWillMount(): void {
@@ -47,10 +40,10 @@ export default class PillsyCap {
                         // Check if it is a device you are looking for based on advertisement data
                         // or other criteria.
                         console.log(`Device name : ${device.name}`);
-                        let id = this.getDeviceID(device.manufacturerData);
+                        let address = this.getDeviceAddress(device.manufacturerData);
 
-                        if (id === this.deviceID) {
-
+                        if (address === this.address) {
+                            console.log(`Connected device address(id) : ${address}`);
                             this.manager.stopDeviceScan();
 
                             device.connect()
@@ -82,44 +75,45 @@ export default class PillsyCap {
         });
     };
 
-    // Get Device ID from Manufacturer data
-    getDeviceID = (data) =>{
+    // Get Device Address(ID) from Manufacturer data
+    getDeviceAddress = (data) =>{
 
-        var buffer = Buffer.from(data, 'base64');
+        let buffer = Buffer.from(data, 'base64');
         // Type:        [Start] # bytes (total 12)
         // Device Id:   [3-8]   6 bytes
 
         let deviceID = buffer.subarray(3,9).toString('hex');
+        let arr = [];
 
-        let arr = []
         for(let i=0;i<deviceID.length;i=i+2){
             arr.push(deviceID[i]+deviceID[i+1]);
         }
-        // Return ID in xx:xx:xx:xx:xx:xx form
+        // Return address in xx:xx:xx:xx:xx:xx form
         return arr.reverse().join(':').toLowerCase();
     }
 
     // LOG
     readLogs = () => {
 
-        this.manager.monitorCharacteristicForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.log,(error, characteristic) => {
+        let charUUID = this.services.pillsy.characteristics.log;
+
+        this.manager.monitorCharacteristicForDevice(this.device.id, this.pillsyUUID, charUUID,(error, data) => {
             if (error) {
                 console.log(error.message)
                 return
             }
-            var buffer = Buffer.from(characteristic.value, 'base64');
+            var buffer = Buffer.from(data.value, 'base64');
             let log = new PillyLog(buffer);
             log.print();
 
         })
-
-
-
-
     }
 
     stopLog = () => {
-        this.manager.writeCharacteristicWithoutResponseForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.log)
+
+        let charUUID = this.services.pillsy.characteristics.log;
+
+        this.manager.writeCharacteristicWithoutResponseForDevice(this.device.id, this.pillsyUUID, charUUID)
             .then(()=>{
                 console.log('Stop logs successfully')
             })
@@ -131,6 +125,7 @@ export default class PillsyCap {
 
     // TIME
     base64FromDate = (date) => {
+
         let time = date.getTime();
         let seconds = parseInt(time / 1000);
 
@@ -143,11 +138,10 @@ export default class PillsyCap {
     setTime = () => {
         console.log("Set time on ");
 
+        let charUUID = this.services.pillsy.characteristics.time;
         let data = this.base64FromDate(new Date());
 
-        let char = this.services.pillsy.time;
-
-        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.time, data)
+        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, this.pillsyUUID, charUUID, data)
             .then((success)=>{
                 console.log(`Time set successfully : ${success}`)
             })
@@ -161,9 +155,9 @@ export default class PillsyCap {
     readTime = () => {
         console.log("Read Time on ");
 
-        let char = this.services.pillsy.time;
+        let charUUID = this.services.pillsy.characteristics.time;
 
-        this.manager.readCharacteristicForDevice(this.device.id, this.services.pillsy.uuid, this.services.pillsy.characteristics.time)
+        this.manager.readCharacteristicForDevice(this.device.id, this.pillsyUUID, charUUID)
             .then((data)=>{
                 let buffer = Buffer.from(data.value, 'base64');
                 const value = buffer.readUInt32BE();
@@ -181,8 +175,11 @@ export default class PillsyCap {
     // ALERT
     alert = (key) => {
         console.log("Alert - key: ", key);
+
+        let charUUID = this.services.pillsy.characteristics.beep;
         let data = hexToBase64(key.toString());
-        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, gatt.services.pillsy.uuid, gatt.services.pillsy.characteristics.beep, data)
+
+        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, this.pillsyUUID, charUUID, data)
             .then((result)=>{
                 console.log(result)
             })
@@ -225,7 +222,7 @@ export default class PillsyCap {
 
     //  -- not changed
     clearAlarms = () => {
-        console.log("Clearing all alarms on ", this.peripheral.deviceID);
+        console.log("Clearing all alarms on ", this.peripheral.address);
 
         let data = Buffer.alloc(4);
         let char = this.services.pillsy.alarm;
@@ -234,7 +231,7 @@ export default class PillsyCap {
 
     //  -- not changed
     readAlarm = () => {
-        console.log("Read Alarm on ", this.peripheral.deviceID);
+        console.log("Read Alarm on ", this.peripheral.address);
 
         let char = this.services.pillsy.alarm
         char.read();
@@ -250,8 +247,11 @@ export default class PillsyCap {
     // ADMIN
     setAdmin = (key) => {
         console.log("Admin - key: ", key);
+
+        let charUUID = this.services.pillsy.characteristics.admin;
         let data = hexToBase64(key.toString());
-        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, gatt.services.pillsy.uuid, gatt.services.pillsy.characteristics.admin, data)
+
+        this.manager.writeCharacteristicWithResponseForDevice(this.device.id, this.pillsyUUID, charUUID , data)
             .then((result)=>{
                 // console.log(`Admin Logs : `);
                 // console.log(result);
@@ -280,7 +280,7 @@ export default class PillsyCap {
 
     //  -- not changed
     setVolume = (level) => {
-        console.log("Set volume on ", this.peripheral.deviceID);
+        console.log("Set volume on ", this.peripheral.address);
 
         var key = gatt.adminKeys.volume[level];
         if (key) {
@@ -292,7 +292,7 @@ export default class PillsyCap {
 
     //  -- not changed
     setPingInterval = (interval) => {
-        console.log("Set ping interval on ", this.peripheral.deviceID);
+        console.log("Set ping interval on ", this.peripheral.address);
 
         var num = parseInt(interval);
         var key = gatt.adminKeys.pingInterval[num];
@@ -305,7 +305,10 @@ export default class PillsyCap {
 
     // BATTERY:
     readBattery = () => {
-        this.manager.readCharacteristicForDevice(this.device.id, this.services.battery.uuid, this.services.battery.characteristics.level)
+
+        let charUUID = this.services.battery.characteristics.level;
+
+        this.manager.readCharacteristicForDevice(this.device.id, this.batteryUUID, charUUID)
             .then((data)=>{
                 let buffer = Buffer.from(data.value, 'base64');
                 const  value = buffer.readUInt8();
@@ -320,7 +323,7 @@ export default class PillsyCap {
 
     // INFO:
     readString = (char, callback) => {
-        this.manager.readCharacteristicForDevice(this.device.id, this.services.deviceInfo.uuid, char)
+        this.manager.readCharacteristicForDevice(this.device.id, this.deviceInfoUUID, char)
             .then((data)=>{
                 const  value = Base64.decode(data.value)
                 callback(value)
