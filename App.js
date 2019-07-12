@@ -10,7 +10,7 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {BleManager} from 'react-native-ble-plx'
 import PillsyCap from './src/classes/PillsyCap';
-import CapDB from "./src/database/CapDB";
+import DatabaseManager from './src/database/DatabaseManager';
 
 export default class App extends Component {
     constructor() {
@@ -20,23 +20,32 @@ export default class App extends Component {
     componentWillMount() {
 
         // Database work START
-        let object = new CapDB();
+        let object = new DatabaseManager();
 
         // Insert Object
-        //object.insert();        // pass parameters from here
+        object.createRecord();        // pass parameters from here
+
+        console.log('-----------------')
 
         // Read All objects, before
-        for (let o of object.read()) {
+        for (let o of object.readRecord()) {
             console.log(`${o.id}  ${o.deviceId} ${o.platform}`);
         }
 
+        console.log('-----------------')
         // Update object
-        object.update()
+        // object.updateRecord()
+        // Delete object
+        // object.deleteAllRecords();
 
-        // Read All objects after update
-        for (let o of object.read()) {
+        console.log('-----------------')
+
+        // Read All objects after update/delete
+        for (let o of object.readRecord()) {
             console.log(`${o.id}  ${o.deviceId} ${o.platform}`);
         }
+
+        object.close();
         // Database work END
 
 

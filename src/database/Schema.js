@@ -1,8 +1,10 @@
 import Realm from 'realm'
 
-class CapSchema extends Realm.Object {}
-CapSchema.schema = {
-    name: 'Cap',
+export const SCHEMA_NAME = 'Cap';
+
+class Schema extends Realm.Object {}
+Schema.schema = {
+    name: SCHEMA_NAME,
     primaryKey: 'id',
     properties: {
         id: {type: 'int'},
@@ -11,16 +13,16 @@ CapSchema.schema = {
     }
 };
 
-const currentVersion = Realm.schemaVersion(Realm.defaultPath);
-
 const realm = new Realm(
     {
-        schema: [CapSchema],
+        schema: [Schema],
         schemaVersion:14,
         migration: function(oldRealm, newRealm) {
             newRealm.deleteAll();
         }});
 export default realm;
+
+
 
 
 
@@ -41,4 +43,5 @@ properties: {
         createAt: {type: 'int'},
         updateAt: {type: 'int'}
     }
+
 */
