@@ -10,7 +10,7 @@
     "async": "^3.1.0",
     "buffer": "^5.2.1",
     "react": "16.8.3",
-    "react-native": "0.59.8",
+    "react-native": "0.62.3",
     "react-native-base64": "0.0.2",
     "react-native-ble-plx": "^1.0.3",
     "realm": "^2.29.0"
